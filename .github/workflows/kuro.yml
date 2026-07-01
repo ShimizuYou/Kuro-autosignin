@@ -1,0 +1,44 @@
+name: Kuro Auto Signin
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "1 23 * * *"
+
+jobs:
+  signin:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Create config
+        run: |
+          mkdir -p config
+          cat > config/account.yaml <<EOF
+          enable: true
+          token: "${{ secrets.KURO_TOKEN }}"
+          completed: false
+          auto_reple_sign: true
+          retry_times: 3
+          game_info:
+            distinct_id: ""
+            devcode: ""
+            wwroleId:
+            eeeroleId:
+          user_info:
+            userId: ""
+          EOF
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: Run signin
+        run: |
+          python main.py
